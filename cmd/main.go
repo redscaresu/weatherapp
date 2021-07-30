@@ -12,7 +12,7 @@ func main() {
 
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if len(token) == 0 {
-		log.Fatal("please set a weatherapp token")
+		fmt.Printf("please set a weatherapp token\n")
 		os.Exit(2)
 	}
 
