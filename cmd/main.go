@@ -2,11 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Weather struct {
@@ -51,7 +53,7 @@ type Weather struct {
 	Cod      int    `json:"cod"`
 }
 
-func GetWeather(token string) {
+func GetWeather(token, location string) {
 
 	var w Weather
 
@@ -76,6 +78,8 @@ func GetWeather(token string) {
 }
 
 func main() {
+
+	location := flag.String("location", strings.ToLower(""), "a city")
 
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if len(token) == 0 {
