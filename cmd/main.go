@@ -70,7 +70,9 @@ func GetWeather(token string) {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%v", w.Weather[0].Main)
+	celcius := w.Main.Temp - 32*5/9
+
+	fmt.Printf("weather: %v\ncelcius: %v", w.Weather[0].Main, celcius)
 }
 
 func main() {
