@@ -70,7 +70,7 @@ func GetWeather(token string) {
 		log.Fatal(err)
 	}
 
-	fmt.Println(w.Weather)
+	fmt.Printf("%v", w.Weather[0].Main)
 }
 
 func main() {
