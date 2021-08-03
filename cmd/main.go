@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 )
 
 type Weather struct {
@@ -53,15 +52,40 @@ type Weather struct {
 	Cod      int    `json:"cod"`
 }
 
+type CityUnknown struct {
+	Cod     string `json:"cod"`
+	Message string `json:"message"`
+}
+
 func GetWeather(token, location string) {
 
 	var w Weather
-
+	var cu CityUnknown
 	//call open weather map and get something
-	resp, err := http.Get(fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=london&appid=%s", token))
+	resp, err := http.Get(fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s", location, token))
+
+	//fail as early as possible
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if resp.StatusCode == 404 {
+		read_all, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = json.Unmarshal(read_all, &cu)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if cu.Message == "city not found" {
+			fmt.Printf("%v\n", cu.Message)
+			os.Exit(2)
+		}
+	}
+
 	read_all, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
@@ -79,7 +103,14 @@ func GetWeather(token, location string) {
 
 func main() {
 
-	location := flag.String("location", strings.ToLower(""), "a city")
+	location := flag.String("location", "", "a city")
+	flag.Parse()
+
+	if len(*location) == 0 {
+		fmt.Printf("please enter a location\n")
+		os.Exit(2)
+	}
+	flag.Parse()
 
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if len(token) == 0 {
@@ -87,5 +118,5 @@ func main() {
 		os.Exit(2)
 	}
 
-	GetWeather(token)
+	GetWeather(token, *location)
 }
