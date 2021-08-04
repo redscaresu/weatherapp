@@ -7,7 +7,7 @@ import (
 	"weather"
 )
 
-func TestGet(t *testing.T) {
+func TestGetWeather(t *testing.T) {
 	var conditions []byte
 
 	token := os.Getenv("WEATHERAPP_TOKEN")
@@ -16,7 +16,7 @@ func TestGet(t *testing.T) {
 		os.Exit(2)
 	}
 
-	conditions, err := weather.Get("london", token)
+	conditions, err := weather.GetWeather("london", token)
 	if err != nil {
 		t.Fatal(err)
 	}
