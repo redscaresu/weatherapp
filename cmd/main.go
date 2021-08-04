@@ -57,7 +57,7 @@ type CityUnknown struct {
 	Message string `json:"message"`
 }
 
-func GetWeather(token, location string) {
+func Get(token, location string) {
 
 	var w Weather
 	var cu CityUnknown
@@ -118,5 +118,5 @@ func main() {
 		os.Exit(2)
 	}
 
-	GetWeather(token, *location)
+	Get(token, *location)
 }

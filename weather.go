@@ -1,6 +1,6 @@
 package weather
 
-func GetWeather(location, token string) ([]byte, error) {
+func Get(location, token string) ([]byte, error) {
 
-	return (GetWeather("tehran", token))
+	return (Get("tehran", token))
 }
