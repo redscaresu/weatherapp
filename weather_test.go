@@ -16,7 +16,7 @@ func TestGetWeather(t *testing.T) {
 		os.Exit(2)
 	}
 
-	conditions, err := weather.Get("london", token)
+	conditions, err := weather.Get(token, "london")
 	if err != nil {
 		t.Fatal(err)
 	}
