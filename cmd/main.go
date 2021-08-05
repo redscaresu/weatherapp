@@ -12,6 +12,8 @@ func main() {
 	location := flag.String("location", "", "a city")
 	flag.Parse()
 
+	fmt.Printf("%s", *location)
+
 	if len(*location) == 0 {
 		fmt.Printf("please enter a location\n")
 		os.Exit(2)
@@ -24,5 +26,6 @@ func main() {
 		os.Exit(2)
 	}
 
-	weather.Get(token, *location)
+	foo, err := weather.Get(token, *location)
+	fmt.Printf(string(foo), err)
 }
