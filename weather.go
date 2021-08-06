@@ -108,8 +108,6 @@ func Get(token, location string) ([]byte, error) {
 	c.Celcius = celcius
 	c.OneWord = mainWeather
 
-	// fmt.Printf("%v", c)
-
 	reqBodyBytes := new(bytes.Buffer)
 
 	json.NewEncoder(reqBodyBytes).Encode(c)
