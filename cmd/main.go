@@ -33,7 +33,8 @@ func main() {
 		os.Exit(2)
 	}
 
-	weatherString, err := weather.Get(token, *location)
+	resp := weather.CallUrl(token, *location)
+	weatherString, err := weather.Get(resp)
 	if err != nil {
 		log.Fatal(err)
 	}

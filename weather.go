@@ -62,12 +62,10 @@ type CliResponse struct {
 	Celcius float64 `json:"celcius"`
 }
 
-func Get(token, location string) ([]byte, error) {
+func CallUrl(token, location string) http.Response {
 
-	var w Weather
 	var cu CityUnknown
-	var c CliResponse
-	//call open weather map and get something
+
 	resp, err := http.Get(fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s", location, token))
 
 	//fail as early as possible
@@ -75,6 +73,7 @@ func Get(token, location string) ([]byte, error) {
 		log.Fatal(err)
 	}
 
+	//I dont like this, 404 could be different reasons.  I assume its always because a city cannot be found.
 	if resp.StatusCode == 404 {
 		read_all, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -91,6 +90,14 @@ func Get(token, location string) ([]byte, error) {
 			os.Exit(2)
 		}
 	}
+
+	return *resp
+}
+
+func Get(resp http.Response) ([]byte, error) {
+
+	var w Weather
+	var c CliResponse
 
 	read_all, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
