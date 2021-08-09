@@ -109,7 +109,7 @@ func Get(resp http.Response) ([]byte, error) {
 		log.Fatal(err)
 	}
 
-	celcius := w.Main.Temp - 32*5/9
+	celcius := w.Main.Temp - 273.15
 	mainWeather := w.Weather[0].Main
 
 	c.Celcius = celcius
