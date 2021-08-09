@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"os"
 )
@@ -112,7 +113,7 @@ func Get(resp http.Response) ([]byte, error) {
 	celcius := w.Main.Temp - 273.15
 	mainWeather := w.Weather[0].Main
 
-	c.Celcius = celcius
+	c.Celcius = math.Round(celcius)
 	c.OneWord = mainWeather
 
 	reqBodyBytes := new(bytes.Buffer)
