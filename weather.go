@@ -104,6 +104,8 @@ func Get(resp http.Response) ([]byte, error) {
 		log.Fatal(err)
 	}
 
+	fmt.Printf("%s", read_all)
+
 	err = json.Unmarshal(read_all, &w)
 	if err != nil {
 		log.Fatal(err)
