@@ -61,8 +61,9 @@ func CliOutput(token, location string) (output string) {
 func CallUrl(token, location string) http.Response {
 
 	var cu CityUnknown
+	domain := "api.openweathermap.org"
 
-	resp, err := http.Get(fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s", location, token))
+	resp, err := http.Get(fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token))
 
 	//fail as early as possible
 	if err != nil {
