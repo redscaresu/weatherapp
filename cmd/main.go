@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"weather"
 )
@@ -15,8 +13,6 @@ type Response struct {
 }
 
 func main() {
-
-	var r Response
 
 	location := flag.String("location", "", "a city")
 	flag.Parse()
@@ -33,12 +29,6 @@ func main() {
 		os.Exit(2)
 	}
 
-	resp := weather.CallUrl(token, *location)
-	weatherString, err := weather.Get(resp)
-	if err != nil {
-		log.Fatal(err)
-	}
-	json.Unmarshal(weatherString, &r)
-
-	fmt.Printf("weather: %s\ncelcius: %v\n", r.OneWord, r.Celcius)
+	resp := weather.CliOutput(token, *location)
+	fmt.Printf("%v", resp)
 }

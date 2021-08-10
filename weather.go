@@ -63,6 +63,26 @@ type CliResponse struct {
 	Celcius float64 `json:"celcius"`
 }
 
+type Response struct {
+	OneWord string  `json:"oneword"`
+	Celcius float64 `json:"celcius"`
+}
+
+func CliOutput(token, location string) (output string) {
+
+	var r Response
+
+	resp := CallUrl(token, location)
+	weatherString, err := Get(resp)
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.Unmarshal(weatherString, &r)
+
+	output = string(fmt.Sprintf("weather: %s\ncelcius: %v\n", r.OneWord, r.Celcius))
+	return output
+}
+
 func CallUrl(token, location string) http.Response {
 
 	var cu CityUnknown
