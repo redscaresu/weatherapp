@@ -71,7 +71,7 @@ func CallUrl(token, location string) http.Response {
 	}
 
 	//I dont like this, 404 could be different reasons.  I assume its always because a city cannot be found.
-	if resp.StatusCode == 404 {
+	if resp.StatusCode == http.StatusNotFound {
 		read_all, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			log.Fatal(err)
