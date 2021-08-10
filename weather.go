@@ -8,7 +8,6 @@ import (
 	"log"
 	"math"
 	"net/http"
-	"os"
 )
 
 type Weather struct {
@@ -67,24 +66,22 @@ func CallUrl(token, location string) http.Response {
 
 	//fail as early as possible
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("an error has occured, %v", err)
 	}
 
-	//I dont like this, 404 could be different reasons.  I assume its always because a city cannot be found.
 	if resp.StatusCode == http.StatusNotFound {
 		read_all, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("an error has occured, %v", err)
 		}
 
 		err = json.Unmarshal(read_all, &cu)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("an error has occured, %v", err)
 		}
 
 		if cu.Message == "city not found" {
-			fmt.Printf("%v\n", cu.Message)
-			os.Exit(2)
+			log.Print("The city cannot be found")
 		}
 	}
 
