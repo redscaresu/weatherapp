@@ -70,12 +70,7 @@ func CallUrl(token, location string) http.Response {
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		read_all, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Printf("an error has occured, %v", err)
-		}
-
-		err = json.Unmarshal(read_all, &cu)
+		err = json.NewDecoder(resp.Body).Decode(&cu)
 		if err != nil {
 			log.Printf("an error has occured, %v", err)
 		}
