@@ -3,7 +3,6 @@ package weather_test
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -31,7 +30,7 @@ func WeatherNewTLSServer(testcases string) (r http.Response) {
 	client := ts.Client()
 	res, err := client.Get(ts.URL)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("%v", err)
 	}
 
 	return *res
