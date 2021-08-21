@@ -1,43 +1,30 @@
 package weather_test
 
 import (
-	"bufio"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 	"weather"
 )
 
-func GetTestCases() []string {
+func GetTestCases() string {
 
-	file, err := os.Open("testcases.txt")
+	b, err := ioutil.ReadFile("testcases.txt") // just pass the file name
 	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	sc := bufio.NewScanner(file)
-	lines := make([]string, 0)
-
-	// Read through 'tokens' until an EOF is encountered.
-	for sc.Scan() {
-		lines = append(lines, sc.Text())
+		fmt.Print(err)
 	}
 
-	if err := sc.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	return lines
+	testcases := string(b)
+	return testcases
 }
 
-func WeatherNewTLSServer(testcase string) (r http.Response) {
+func WeatherNewTLSServer(testcases string) (r http.Response) {
 
 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, testcase)
+		fmt.Fprintln(w, testcases)
 	}))
 	defer ts.Close()
 
@@ -54,16 +41,14 @@ func TestGetWeather(t *testing.T) {
 
 	// var conditions []byte
 
-	TestCases := GetTestCases()
-	for _, v := range TestCases {
-		resp := WeatherNewTLSServer(v)
-		conditions, err := weather.Get(resp)
+	testcases := GetTestCases()
+	resp := WeatherNewTLSServer(testcases)
+	conditions, err := weather.Get(resp)
 
-		if err != nil {
-			t.Fatal(err)
-		}
-		if len(conditions) == 0 {
-			t.Fatal("no conditions")
-		}
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(conditions) == 0 {
+		t.Fatal("no conditions")
 	}
 }
