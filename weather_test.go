@@ -1,23 +1,29 @@
 package weather_test
 
 import (
+	"bufio"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"weather"
 )
 
-func GetTestCases() string {
+func GetTestCases() []string {
 
-	b, err := ioutil.ReadFile("testcases.txt") // just pass the file name
+	file, err := os.Open("testcases.txt")
 	if err != nil {
-		fmt.Print(err)
+		fmt.Printf("%v", err)
 	}
+	defer file.Close()
 
-	testcases := string(b)
-	return testcases
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	return lines
 }
 
 func WeatherNewTLSServer(testcases string) (r http.Response) {
@@ -41,13 +47,15 @@ func TestGetWeather(t *testing.T) {
 	// var conditions []byte
 
 	testcases := GetTestCases()
-	resp := WeatherNewTLSServer(testcases)
-	conditions, err := weather.Get(resp)
+	for _, testcase := range testcases {
+		resp := WeatherNewTLSServer(testcase)
+		conditions, err := weather.Get(resp)
 
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(conditions) == 0 {
-		t.Fatal("no conditions")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(conditions) == 0 {
+			t.Fatal("no conditions")
+		}
 	}
 }
