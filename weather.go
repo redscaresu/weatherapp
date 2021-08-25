@@ -32,19 +32,15 @@ type CityUnknown struct {
 	Message string `json:"message"`
 }
 
-type CliResponse struct {
-	OneWord string  `json:"oneword"`
-	Celcius float64 `json:"celcius"`
-}
-
-type Response struct {
+type Conditions struct {
+	City    string
 	OneWord string  `json:"oneword"`
 	Celcius float64 `json:"celcius"`
 }
 
 func CliOutput(token, location string) (output string) {
 
-	var r Response
+	var r Conditions
 
 	resp := CallUrl(token, location)
 	weatherString, err := Get(resp)
@@ -86,7 +82,7 @@ func CallUrl(token, location string) http.Response {
 func Get(resp http.Response) ([]byte, error) {
 
 	var w Weather
-	var c CliResponse
+	var c Conditions
 
 	read_all, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
