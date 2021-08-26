@@ -38,7 +38,7 @@ func TestGetWeather(t *testing.T) {
 	want := weather.Conditions{
 		City:    "Birmingham",
 		OneWord: "Clouds",
-		Celcius: 10,
+		Celcius: 23,
 	}
 
 	got, err := weather.Get(*res)
@@ -50,12 +50,17 @@ func TestGetWeather(t *testing.T) {
 	json.Unmarshal(got, &r)
 	OneWordResponse := &r.OneWord
 	CityResponse := &r.City
+	CelciusResonse := &r.Celcius
 
 	if want.OneWord != *OneWordResponse {
 		t.Fatal("want not equal to got")
 	}
 
 	if want.City != *CityResponse {
+		t.Fatal("want not equal to got")
+	}
+
+	if want.Celcius != *CelciusResonse {
 		t.Fatal("want not equal to got")
 	}
 }
