@@ -25,6 +25,7 @@ type Weather struct {
 		Pressure  int     `json:"pressure"`
 		Humidity  int     `json:"humidity"`
 	} `json:"main"`
+	Name string `json:"name"`
 }
 
 type CityUnknown struct {
@@ -99,6 +100,7 @@ func Get(resp http.Response) ([]byte, error) {
 
 	c.Celcius = math.Round(celcius)
 	c.OneWord = mainWeather
+	c.City = w.Name
 
 	reqBodyBytes := new(bytes.Buffer)
 

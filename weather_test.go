@@ -1,6 +1,7 @@
 package weather_test
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,7 +10,15 @@ import (
 	"weather"
 )
 
+type Response struct {
+	OneWord string  `json:"oneword"`
+	Celcius float64 `json:"celcius"`
+	City    string  `json:"city"`
+}
+
 func TestGetWeather(t *testing.T) {
+
+	var r Response
 
 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		file, err := os.Open("testdata/weather.json")
@@ -27,9 +36,9 @@ func TestGetWeather(t *testing.T) {
 	}
 
 	want := weather.Conditions{
-		city:    "Birmingham",
-		weather: "rain",
-		celcius: 10,
+		City:    "Birmingham",
+		OneWord: "Clouds",
+		Celcius: 10,
 	}
 
 	got, err := weather.Get(*res)
@@ -38,8 +47,15 @@ func TestGetWeather(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if want != got {
+	json.Unmarshal(got, &r)
+	OneWordResponse := &r.OneWord
+	CityResponse := &r.City
+
+	if want.OneWord != *OneWordResponse {
 		t.Fatal("want not equal to got")
 	}
 
+	if want.City != *CityResponse {
+		t.Fatal("want not equal to got")
+	}
 }
