@@ -6,10 +6,11 @@ import (
 	"weather"
 )
 
-type Response struct {
-	OneWord string  `json:"oneword"`
-	Celcius float64 `json:"celcius"`
-}
+// type Response struct {
+// 	OneWord string  `json:"oneword"`
+// 	Celcius float64 `json:"celcius"`
+// 	City    string
+// }
 
 func main() {
 

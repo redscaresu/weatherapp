@@ -50,7 +50,7 @@ func CliOutput(token, location string) (output string) {
 	}
 	json.Unmarshal(weatherString, &r)
 
-	output = string(fmt.Sprintf("weather: %s\ncelcius: %v\n", r.OneWord, r.Celcius))
+	output = string(fmt.Sprintf("city: %s\nweather: %s\ncelcius: %v\n", r.City, r.OneWord, r.Celcius))
 	return output
 }
 
