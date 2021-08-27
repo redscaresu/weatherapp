@@ -61,7 +61,6 @@ func CallUrl(token, location string) http.Response {
 
 	resp, err := http.Get(fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token))
 
-	//fail as early as possible
 	if err != nil {
 		log.Printf("an error has occured, %v", err)
 	}
@@ -73,7 +72,7 @@ func CallUrl(token, location string) http.Response {
 		}
 
 		if cu.Message == "city not found" {
-			log.Print("The city cannot be found")
+			log.Fatal("The city cannot be found")
 		}
 	}
 
