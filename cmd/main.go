@@ -3,15 +3,24 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 	"weather"
 )
 
 func main() {
 
+	var command strings.Builder
+
 	if len(os.Args) == 1 {
 		fmt.Fprintf(os.Stderr, "please set a location e.g. london\n")
 		os.Exit(2)
 	}
+
+	for _, v := range os.Args {
+		fmt.Println(v)
+		command.WriteString(v)
+	}
+	fmt.Println(command.String())
 
 	location := os.Args[1]
 
