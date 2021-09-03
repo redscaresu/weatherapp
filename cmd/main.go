@@ -16,13 +16,14 @@ func main() {
 		os.Exit(2)
 	}
 
-	for _, v := range os.Args {
-		fmt.Println(v)
-		command.WriteString(v)
+	for i, v := range os.Args {
+		if i > 0 {
+			command.WriteString(v)
+			command.WriteString(" ")
+		}
 	}
-	fmt.Println(command.String())
 
-	location := os.Args[1]
+	location := &command
 
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if len(token) == 0 {
