@@ -74,7 +74,8 @@ func CallUrl(token string, location string) http.Response {
 		}
 
 		if cu.Message == "city not found" {
-			log.Fatal("The city cannot be found")
+			fmt.Printf("The city %scannot be found, the error code is %v \n", location, resp.StatusCode)
+			os.Exit(2)
 		}
 	}
 
