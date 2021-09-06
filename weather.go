@@ -8,7 +8,6 @@ import (
 	"log"
 	"math"
 	"net/http"
-	"strings"
 )
 
 type Weather struct {
@@ -40,7 +39,7 @@ type Conditions struct {
 	Celcius float64 `json:"celcius"`
 }
 
-func CliOutput(token string, location *strings.Builder) (output string) {
+func CliOutput(token string, location string) (output string) {
 
 	var r Conditions
 
@@ -55,7 +54,7 @@ func CliOutput(token string, location *strings.Builder) (output string) {
 	return output
 }
 
-func CallUrl(token string, location *strings.Builder) http.Response {
+func CallUrl(token string, location string) http.Response {
 
 	var cu CityUnknown
 	domain := "api.openweathermap.org"
