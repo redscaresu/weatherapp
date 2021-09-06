@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 )
 
 type Weather struct {
@@ -63,6 +64,7 @@ func CallUrl(token string, location string) http.Response {
 
 	if err != nil {
 		log.Printf("an error has occured, %v", err)
+		os.Exit(2)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
