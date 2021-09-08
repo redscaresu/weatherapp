@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math"
@@ -55,7 +56,9 @@ func CliOutput(token string, location string) (output string) {
 	return output
 }
 
-func CallUrl(token string, location string) http.Response {
+func CallUrl(token string, location string) io.Reader {
+
+	var r io.Reader
 
 	var cu CityUnknown
 	domain := "api.openweathermap.org"
@@ -79,15 +82,16 @@ func CallUrl(token string, location string) http.Response {
 		}
 	}
 
-	return *resp
+	r = resp.Body
+	return r
 }
 
-func Get(resp http.Response) ([]byte, error) {
+func Get(resp io.Reader) ([]byte, error) {
 
 	var w Weather
 	var c Conditions
 
-	read_all, err := ioutil.ReadAll(resp.Body)
+	read_all, err := ioutil.ReadAll(resp)
 	if err != nil {
 		log.Fatal(err)
 	}
