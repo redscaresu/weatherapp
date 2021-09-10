@@ -19,6 +19,7 @@ type Response struct {
 func TestGetWeather(t *testing.T) {
 
 	var r Response
+	var re io.Reader
 
 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		file, err := os.Open("testdata/weather.json")
@@ -35,13 +36,15 @@ func TestGetWeather(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	re = res.Body
+
 	want := weather.Conditions{
 		City:    "Birmingham",
 		OneWord: "Clouds",
 		Celcius: 23,
 	}
 
-	got, err := weather.Get(*res)
+	got, err := weather.Get(re)
 
 	if err != nil {
 		t.Fatal(err)
