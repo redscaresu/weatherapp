@@ -10,15 +10,15 @@ import (
 	"weather"
 )
 
-type Response struct {
+type Conditions struct {
+	City    string  `json:"city"`
 	OneWord string  `json:"oneword"`
 	Celcius float64 `json:"celcius"`
-	City    string  `json:"city"`
 }
 
 func TestGetWeather(t *testing.T) {
 
-	var r Response
+	var c Conditions
 	var re io.Reader
 
 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -38,10 +38,10 @@ func TestGetWeather(t *testing.T) {
 
 	re = res.Body
 
-	want := weather.Conditions{
-		City:    "Birmingham",
+	want := Conditions{
 		OneWord: "Clouds",
-		Celcius: 23,
+		Celcius: 23.0,
+		City:    "Birmingham",
 	}
 
 	got, err := weather.Get(re)
@@ -50,20 +50,24 @@ func TestGetWeather(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	json.Unmarshal(got, &r)
-	OneWordResponse := &r.OneWord
-	CityResponse := &r.City
-	CelciusResonse := &r.Celcius
+	json.Unmarshal(got, &c)
+	// OneWordResponse := &r.OneWord
+	// CityResponse := &r.City
+	// CelciusResonse := &r.Celcius
 
-	if want.OneWord != *OneWordResponse {
+	if want != c {
 		t.Fatal("want not equal to got")
 	}
 
-	if want.City != *CityResponse {
-		t.Fatal("want not equal to got")
-	}
+	// if want.OneWord != *OneWordResponse {
+	// 	t.Fatal("want not equal to got")
+	// }
 
-	if want.Celcius != *CelciusResonse {
-		t.Fatal("want not equal to got")
-	}
+	// if want.City != *CityResponse {
+	// 	t.Fatal("want not equal to got")
+	// }
+
+	// if want.Celcius != *CelciusResonse {
+	// 	t.Fatal("want not equal to got")
+	// }
 }
