@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Weather struct {
@@ -41,30 +41,37 @@ type Conditions struct {
 	Celcius float64 `json:"celcius"`
 }
 
-func CliOutput(token string, location string) (output string) {
+func CliOutput(token string, args []string) (output string) {
 
-	var r Conditions
-
-	resp := CallUrl(token, location)
-	weatherString, err := Get(resp)
+	resp := BuildURL(token, args)
+	c, err := Get(resp)
 	if err != nil {
 		log.Fatal(err)
 	}
-	json.Unmarshal(weatherString, &r)
 
-	output = fmt.Sprintf("city: %s\nweather: %s\ncelcius: %v\n", r.City, r.OneWord, r.Celcius)
+	output = fmt.Sprintf("city: %s\nweather: %s\ncelcius: %v\n", c.City, c.OneWord, c.Celcius)
 
 	return output
 }
 
-func CallUrl(token string, location string) io.Reader {
+func BuildURL(token string, args []string) string {
 
-	var r io.Reader
+	domain := "api.openweathermap.org"
+	location := strings.Join(args[1:], "%20")
+
+	BuildURL := fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token)
+
+	return BuildURL
+}
+
+func Get(url string) (Conditions, error) {
+
+	var w Weather
+	var c Conditions
 
 	var cu CityUnknown
-	domain := "api.openweathermap.org"
 
-	resp, err := http.Get(fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token))
+	resp, err := http.Get(url)
 
 	if err != nil {
 		log.Printf("an error has occured, %v", err)
@@ -78,21 +85,12 @@ func CallUrl(token string, location string) io.Reader {
 		}
 
 		if cu.Message == "city not found" {
-			fmt.Printf("The city %scannot be found, the error code is %v \n", location, resp.StatusCode)
+			fmt.Printf("The city cannot be found, the error code is %v \n", resp.StatusCode)
 			os.Exit(2)
 		}
 	}
 
-	r = resp.Body
-	return r
-}
-
-func Get(resp io.Reader) ([]byte, error) {
-
-	var w Weather
-	var c Conditions
-
-	read_all, err := ioutil.ReadAll(resp)
+	read_all, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -116,5 +114,5 @@ func Get(resp io.Reader) ([]byte, error) {
 		log.Fatal(err)
 	}
 
-	return reqBodyBytes.Bytes(), err
+	return c, nil
 }
