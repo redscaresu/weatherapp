@@ -64,6 +64,18 @@ func BuildURL(token string, args []string) string {
 	return BuildURL
 }
 
+func Call(url string) *http.Response {
+
+	resp, err := http.Get(url)
+
+	if err != nil {
+		log.Printf("an error has occured, %v", err)
+		os.Exit(2)
+	}
+
+	return resp
+}
+
 func Get(url string) (Conditions, error) {
 
 	var w Weather
