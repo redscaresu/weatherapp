@@ -42,7 +42,8 @@ type Conditions struct {
 
 func CliOutput(token string, args []string) (output string) {
 
-	resp := BuildURL(token, args)
+	location := LocationFromArgs(args)
+	resp := BuildURL(token, location)
 	c, err := Get(resp)
 	if err != nil {
 		log.Fatal(err)
@@ -53,10 +54,21 @@ func CliOutput(token string, args []string) (output string) {
 	return output
 }
 
-func BuildURL(token string, args []string) string {
+func LocationFromArgs(args []string) string {
+
+	if len(os.Args) == 1 {
+		fmt.Fprintf(os.Stderr, "please set a location e.g. london\n")
+		os.Exit(2)
+	}
+
+	location := strings.Join(args[1:], "%20")
+
+	return location
+}
+
+func BuildURL(token string, location string) string {
 
 	domain := "api.openweathermap.org"
-	location := strings.Join(args[1:], "%20")
 
 	BuildURL := fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token)
 
