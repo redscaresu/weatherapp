@@ -30,14 +30,14 @@ type Weather struct {
 }
 
 type CityUnknown struct {
-	Cod     string `json:"cod"`
-	Message string `json:"message"`
+	Cod     string
+	Message string
 }
 
 type Conditions struct {
 	City    string
-	OneWord string  `json:"oneword"`
-	Celcius float64 `json:"celcius"`
+	OneWord string
+	Celcius float64
 }
 
 func CliOutput(token string, args []string) (output string) {
