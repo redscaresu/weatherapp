@@ -13,21 +13,20 @@ import (
 )
 
 type Weather struct {
+	Name    string
 	Weather []struct {
-		ID          int    `json:"id"`
-		Main        string `json:"main"`
-		Description string `json:"description"`
-		Icon        string `json:"icon"`
-	} `json:"weather"`
+		ID          int
+		Main        string
+		Description string
+		Icon        string
+	}
 	Main struct {
-		Temp      float64 `json:"temp"`
-		FeelsLike float64 `json:"feels_like"`
-		TempMin   float64 `json:"temp_min"`
-		TempMax   float64 `json:"temp_max"`
-		Pressure  int     `json:"pressure"`
-		Humidity  int     `json:"humidity"`
-	} `json:"main"`
-	Name string `json:"name"`
+		Temp      float64
+		FeelsLike float64
+		TempMin   float64
+		TempMax   float64
+		Humidity  int
+	}
 }
 
 type CityUnknown struct {
@@ -104,12 +103,14 @@ func Get(url string) (Conditions, error) {
 
 	read_all, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("an error has occured, %v", err)
+		os.Exit(2)
 	}
 
 	err = json.Unmarshal(read_all, &w)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("an error has occured, %v", err)
+		os.Exit(2)
 	}
 
 	celcius := w.Main.Temp - 273.15
@@ -123,7 +124,8 @@ func Get(url string) (Conditions, error) {
 
 	json.NewEncoder(reqBodyBytes).Encode(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("an error has occured, %v", err)
+		os.Exit(2)
 	}
 
 	return c, nil
