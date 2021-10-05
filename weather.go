@@ -37,7 +37,7 @@ type CityUnknown struct {
 type Conditions struct {
 	City    string
 	OneWord string
-	Celcius float64
+	Celsius float64
 }
 
 func CliOutput(token string, args []string) (output string) {
@@ -50,7 +50,7 @@ func CliOutput(token string, args []string) (output string) {
 		log.Fatal(err)
 	}
 
-	output = fmt.Sprintf("city: %s\nweather: %s\ncelcius: %v\n", conditions.City, conditions.OneWord, conditions.Celcius)
+	output = fmt.Sprintf("city: %s\nweather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.Celsius)
 
 	return output
 }
@@ -119,10 +119,10 @@ func Get(resp *http.Response) (Conditions, error) {
 		os.Exit(2)
 	}
 
-	celcius := w.Main.Temp - 273.15
+	Celsius := w.Main.Temp - 273.15
 	mainWeather := w.Weather[0].Main
 
-	c.Celcius = math.Round(celcius)
+	c.Celsius = math.Round(Celsius)
 	c.OneWord = mainWeather
 	c.City = w.Name
 
