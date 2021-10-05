@@ -41,7 +41,7 @@ func TestGetWeather(t *testing.T) {
 
 	want := weather.Conditions{
 		OneWord: "Clouds",
-		Celcius: 23.0,
+		Celsius: 23.0,
 		City:    "Birmingham",
 	}
 
