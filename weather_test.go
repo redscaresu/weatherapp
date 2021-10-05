@@ -1,7 +1,6 @@
 package weather_test
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -13,10 +12,10 @@ import (
 func TestConstructUrl(t *testing.T) {
 
 	token := "foo"
-	args := []string{"PATH", "rio", "de", "janeiro"}
+	location := weather.LocationFromArgs([]string{"PATH", "rio", "de", "janeiro"})
 	want := "https://api.openweathermap.org/data/2.5/weather?q=rio%20de%20janeiro&appid=foo"
 
-	got := weather.BuildURL(token, args)
+	got := weather.BuildURL(token, location)
 
 	if want != got {
 		t.Fatalf("want: %q got: %q", want, got)
@@ -34,9 +33,8 @@ func TestGetWeather(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	url := "https://api.openweathermap.org/data/2.5/weather?q=rio%20de%20janeiro&appid=foo"
-	got, err := weather.Get(url)
-
+	client := ts.Client()
+	res, err := client.Get(ts.URL)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,10 +45,13 @@ func TestGetWeather(t *testing.T) {
 		City:    "Birmingham",
 	}
 
-	fmt.Printf("%v", want)
-	fmt.Printf("%v", got)
+	got, err := weather.Get(res)
 
-	// if want != got {
-	// 	t.Fatal("want not equal to got")
-	// }
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want != got {
+		t.Fatal("want not equal to got")
+	}
 }
