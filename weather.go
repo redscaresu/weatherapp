@@ -43,13 +43,14 @@ type Conditions struct {
 func CliOutput(token string, args []string) (output string) {
 
 	location := LocationFromArgs(args)
-	resp := BuildURL(token, location)
-	c, err := Get(resp)
+	url := BuildURL(token, location)
+	callURL := CallURL(url)
+	conditions, err := Get(callURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	output = fmt.Sprintf("city: %s\nweather: %s\ncelcius: %v\n", c.City, c.OneWord, c.Celcius)
+	output = fmt.Sprintf("city: %s\nweather: %s\ncelcius: %v\n", conditions.City, conditions.OneWord, conditions.Celcius)
 
 	return output
 }
@@ -75,7 +76,7 @@ func BuildURL(token string, location string) string {
 	return BuildURL
 }
 
-func Call(url string) *http.Response {
+func CallURL(url string) *http.Response {
 
 	resp, err := http.Get(url)
 
@@ -87,22 +88,15 @@ func Call(url string) *http.Response {
 	return resp
 }
 
-func Get(url string) (Conditions, error) {
+func Get(resp *http.Response) (Conditions, error) {
 
 	var w Weather
 	var c Conditions
 
 	var cu CityUnknown
 
-	resp, err := http.Get(url)
-
-	if err != nil {
-		log.Printf("an error has occured, %v", err)
-		os.Exit(2)
-	}
-
 	if resp.StatusCode == http.StatusNotFound {
-		err = json.NewDecoder(resp.Body).Decode(&cu)
+		err := json.NewDecoder(resp.Body).Decode(&cu)
 		if err != nil {
 			log.Printf("an error has occured, %v", err)
 		}
