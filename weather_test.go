@@ -1,8 +1,7 @@
 package weather_test
 
 import (
-	"bufio"
-	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -10,52 +9,49 @@ import (
 	"weather"
 )
 
-func GetTestCases() []string {
+func TestConstructUrl(t *testing.T) {
 
-	file, err := os.Open("testcases.txt")
-	if err != nil {
-		fmt.Printf("%v", err)
-	}
-	defer file.Close()
+	token := "foo"
+	location := weather.LocationFromArgs([]string{"PATH", "rio", "de", "janeiro"})
+	want := "https://api.openweathermap.org/data/2.5/weather?q=rio%20de%20janeiro&appid=foo"
 
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+	got := weather.BuildURL(token, location)
+
+	if want != got {
+		t.Fatalf("want: %q got: %q", want, got)
 	}
-	return lines
 }
 
-func WeatherNewTLSServer(testcases string) (r http.Response) {
+func TestGetWeather(t *testing.T) {
 
 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, testcases)
+		file, err := os.Open("testdata/weather.json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		io.Copy(w, file)
 	}))
 	defer ts.Close()
 
 	client := ts.Client()
 	res, err := client.Get(ts.URL)
 	if err != nil {
-		fmt.Printf("%v", err)
+		t.Fatal(err)
 	}
 
-	return *res
-}
+	want := weather.Conditions{
+		OneWord: "Clouds",
+		Celcius: 23.0,
+		City:    "Birmingham",
+	}
 
-func TestGetWeather(t *testing.T) {
+	got, err := weather.Get(res)
 
-	// var conditions []byte
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	testcases := GetTestCases()
-	for _, testcase := range testcases {
-		resp := WeatherNewTLSServer(testcase)
-		conditions, err := weather.Get(resp)
-
-		if err != nil {
-			t.Fatal(err)
-		}
-		if len(conditions) == 0 {
-			t.Fatal("no conditions")
-		}
+	if want != got {
+		t.Fatal("want not equal to got")
 	}
 }

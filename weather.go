@@ -8,94 +8,115 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
+	"strings"
 )
 
 type Weather struct {
+	Name    string
 	Weather []struct {
-		ID          int    `json:"id"`
-		Main        string `json:"main"`
-		Description string `json:"description"`
-		Icon        string `json:"icon"`
-	} `json:"weather"`
+		ID          int
+		Main        string
+		Description string
+		Icon        string
+	}
 	Main struct {
-		Temp      float64 `json:"temp"`
-		FeelsLike float64 `json:"feels_like"`
-		TempMin   float64 `json:"temp_min"`
-		TempMax   float64 `json:"temp_max"`
-		Pressure  int     `json:"pressure"`
-		Humidity  int     `json:"humidity"`
-	} `json:"main"`
+		Temp      float64
+		FeelsLike float64
+		TempMin   float64
+		TempMax   float64
+		Humidity  int
+	}
 }
 
 type CityUnknown struct {
-	Cod     string `json:"cod"`
-	Message string `json:"message"`
+	Cod     string
+	Message string
 }
 
-type CliResponse struct {
-	OneWord string  `json:"oneword"`
-	Celcius float64 `json:"celcius"`
+type Conditions struct {
+	City    string
+	OneWord string
+	Celcius float64
 }
 
-type Response struct {
-	OneWord string  `json:"oneword"`
-	Celcius float64 `json:"celcius"`
-}
+func CliOutput(token string, args []string) (output string) {
 
-func CliOutput(token, location string) (output string) {
-
-	var r Response
-
-	resp := CallUrl(token, location)
-	weatherString, err := Get(resp)
+	location := LocationFromArgs(args)
+	url := BuildURL(token, location)
+	callURL := CallURL(url)
+	conditions, err := Get(callURL)
 	if err != nil {
 		log.Fatal(err)
 	}
-	json.Unmarshal(weatherString, &r)
 
-	output = string(fmt.Sprintf("weather: %s\ncelcius: %v\n", r.OneWord, r.Celcius))
+	output = fmt.Sprintf("city: %s\nweather: %s\ncelcius: %v\n", conditions.City, conditions.OneWord, conditions.Celcius)
+
 	return output
 }
 
-func CallUrl(token, location string) http.Response {
+func LocationFromArgs(args []string) string {
 
-	var cu CityUnknown
-	domain := "api.openweathermap.org"
-
-	resp, err := http.Get(fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token))
-
-	//fail as early as possible
-	if err != nil {
-		log.Printf("an error has occured, %v", err)
+	if len(os.Args) == 1 {
+		fmt.Fprintf(os.Stderr, "please set a location e.g. london\n")
+		os.Exit(2)
 	}
 
+	location := strings.Join(args[1:], "%20")
+
+	return location
+}
+
+func BuildURL(token string, location string) string {
+
+	domain := "api.openweathermap.org"
+
+	BuildURL := fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token)
+
+	return BuildURL
+}
+
+func CallURL(url string) *http.Response {
+
+	resp, err := http.Get(url)
+
+	if err != nil {
+		log.Printf("an error has occured, %v", err)
+		os.Exit(2)
+	}
+
+	return resp
+}
+
+func Get(resp *http.Response) (Conditions, error) {
+
+	var w Weather
+	var c Conditions
+
+	var cu CityUnknown
+
 	if resp.StatusCode == http.StatusNotFound {
-		err = json.NewDecoder(resp.Body).Decode(&cu)
+		err := json.NewDecoder(resp.Body).Decode(&cu)
 		if err != nil {
 			log.Printf("an error has occured, %v", err)
 		}
 
 		if cu.Message == "city not found" {
-			log.Print("The city cannot be found")
+			fmt.Printf("The city cannot be found, the error code is %v \n", resp.StatusCode)
+			os.Exit(2)
 		}
 	}
 
-	return *resp
-}
-
-func Get(resp http.Response) ([]byte, error) {
-
-	var w Weather
-	var c CliResponse
-
 	read_all, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("an error has occured, %v", err)
+		os.Exit(2)
 	}
 
 	err = json.Unmarshal(read_all, &w)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("an error has occured, %v", err)
+		os.Exit(2)
 	}
 
 	celcius := w.Main.Temp - 273.15
@@ -103,13 +124,15 @@ func Get(resp http.Response) ([]byte, error) {
 
 	c.Celcius = math.Round(celcius)
 	c.OneWord = mainWeather
+	c.City = w.Name
 
 	reqBodyBytes := new(bytes.Buffer)
 
 	json.NewEncoder(reqBodyBytes).Encode(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("an error has occured, %v", err)
+		os.Exit(2)
 	}
 
-	return reqBodyBytes.Bytes(), err
+	return c, nil
 }
