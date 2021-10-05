@@ -15,5 +15,5 @@ func main() {
 	}
 
 	resp := weather.CliOutput(token, os.Args)
-	fmt.Printf("%v", resp)
+	fmt.Print(resp)
 }
