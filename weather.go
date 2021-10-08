@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-type Weather struct {
+type apiResponse struct {
 	Name    string
 	Weather []struct {
 		ID          int
@@ -96,7 +96,7 @@ func CallURL(url string) *http.Response {
 
 func Get(resp *http.Response) (Conditions, error) {
 
-	var w Weather
+	var a apiResponse
 	var c Conditions
 
 	var cu CityUnknown
@@ -125,12 +125,12 @@ func Get(resp *http.Response) (Conditions, error) {
 		os.Exit(2)
 	}
 
-	Celsius := w.Main.Temp - 273.15
-	mainWeather := w.Weather[0].Main
+	Celsius := a.Main.Temp - 273.15
+	mainWeather := a.Weather[0].Main
 
 	c.Celsius = math.Round(Celsius)
 	c.OneWord = mainWeather
-	c.City = w.Name
+	c.City = a.Name
 
 	reqBodyBytes := new(bytes.Buffer)
 
