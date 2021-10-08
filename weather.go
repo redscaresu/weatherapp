@@ -43,7 +43,11 @@ func CliOutput(args []string) (output string) {
 
 	location := LocationFromArgs(args)
 	url := BuildURL(token, location)
-	callURL := CallURL(url)
+	callURL, err := CallURL(url)
+	if err != nil {
+		log.Printf("an error has occured, %v", err)
+		os.Exit(2)
+	}
 	conditions, err := Get(callURL)
 	if err != nil {
 		log.Fatal(err)
@@ -75,7 +79,7 @@ func BuildURL(token string, location string) string {
 	return BuildURL
 }
 
-func CallURL(url string) *http.Response {
+func CallURL(url string) (*http.Response, error) {
 
 	resp, err := http.Get(url)
 
@@ -84,7 +88,7 @@ func CallURL(url string) *http.Response {
 		os.Exit(2)
 	}
 
-	return resp
+	return resp, err
 }
 
 func Get(resp *http.Response) (Conditions, error) {
