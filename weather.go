@@ -22,7 +22,7 @@ type apiResponse struct {
 	}
 }
 
-type CityUnknown struct {
+type apiErrorResponse struct {
 	Cod     string
 	Message string
 }
@@ -92,7 +92,7 @@ func Get(resp *http.Response) (Conditions, error) {
 	var a apiResponse
 	var c Conditions
 
-	var cu CityUnknown
+	var cu apiErrorResponse
 
 	if resp.StatusCode == http.StatusNotFound {
 		err := json.NewDecoder(resp.Body).Decode(&cu)
