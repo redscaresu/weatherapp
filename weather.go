@@ -15,17 +15,10 @@ import (
 type apiResponse struct {
 	Name    string
 	Weather []struct {
-		ID          int
-		Main        string
-		Description string
-		Icon        string
+		Main string
 	}
 	Main struct {
-		Temp      float64
-		FeelsLike float64
-		TempMin   float64
-		TempMax   float64
-		Humidity  int
+		Temp float64
 	}
 }
 
