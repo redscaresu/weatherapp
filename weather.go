@@ -119,7 +119,7 @@ func Get(resp *http.Response) (Conditions, error) {
 		os.Exit(2)
 	}
 
-	err = json.Unmarshal(read_all, &w)
+	err = json.Unmarshal(read_all, &a)
 	if err != nil {
 		log.Printf("an error has occured, %v", err)
 		os.Exit(2)
