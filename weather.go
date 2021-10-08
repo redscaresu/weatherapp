@@ -48,7 +48,7 @@ func CliOutput(args []string) (output string) {
 		log.Printf("an error has occured, %v", err)
 		os.Exit(2)
 	}
-	conditions, err := Get(callURL)
+	conditions, err := ParseResponse(callURL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -91,7 +91,7 @@ func CallURL(url string) (*http.Response, error) {
 	return resp, err
 }
 
-func Get(resp *http.Response) (Conditions, error) {
+func ParseResponse(resp *http.Response) (Conditions, error) {
 
 	var a apiResponse
 	var c Conditions

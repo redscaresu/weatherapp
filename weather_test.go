@@ -22,7 +22,7 @@ func TestConstructUrl(t *testing.T) {
 	}
 }
 
-func TestGetWeather(t *testing.T) {
+func TestParseResponseWeather(t *testing.T) {
 
 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		file, err := os.Open("testdata/weather.json")
@@ -45,7 +45,7 @@ func TestGetWeather(t *testing.T) {
 		City:               "Birmingham",
 	}
 
-	got, err := weather.Get(res)
+	got, err := weather.ParseResponse(res)
 
 	if err != nil {
 		t.Fatal(err)
