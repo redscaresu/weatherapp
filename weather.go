@@ -28,9 +28,9 @@ type apiErrorResponse struct {
 }
 
 type Conditions struct {
-	City    string
-	OneWord string
-	Celsius float64
+	City               string
+	OneWord            string
+	TemperatureCelsius float64
 }
 
 func CliOutput(args []string) (output string) {
@@ -49,7 +49,7 @@ func CliOutput(args []string) (output string) {
 		log.Fatal(err)
 	}
 
-	output = fmt.Sprintf("city: %s\nweather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.Celsius)
+	output = fmt.Sprintf("city: %s\nweather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
 
 	return output
 }
@@ -121,7 +121,7 @@ func Get(resp *http.Response) (Conditions, error) {
 	Celsius := a.Main.Temp - 273.15
 	mainWeather := a.Weather[0].Main
 
-	c.Celsius = math.Round(Celsius)
+	c.TemperatureCelsius = math.Round(Celsius)
 	c.OneWord = mainWeather
 	c.City = a.Name
 
