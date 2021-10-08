@@ -50,7 +50,8 @@ func CliOutput(args []string) (output string) {
 	}
 	conditions, err := ParseResponse(callURL)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("problem parsing API response', %v", err)
+		os.Exit(2)
 	}
 
 	output = fmt.Sprintf("city: %s\nweather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
