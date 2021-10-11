@@ -41,13 +41,13 @@ func RunCli(args []string) (output string) {
 		os.Exit(2)
 	}
 
-	url := BuildURL(args, token)
-	callURL, err := CallURL(url)
+	request := Request(args, token)
+	response, err := Response(request)
 	if err != nil {
 		log.Printf("an error has occured, %v", err)
 		os.Exit(2)
 	}
-	conditions, err := ParseResponse(callURL)
+	conditions, err := ParseResponse(response)
 	if err != nil {
 		log.Printf("problem parsing API response', %v", err)
 		os.Exit(2)
@@ -58,7 +58,7 @@ func RunCli(args []string) (output string) {
 	return output
 }
 
-func BuildURL(args []string, token string) string {
+func Request(args []string, token string) *http.Request {
 
 	domain := "api.openweathermap.org"
 
@@ -71,21 +71,19 @@ func BuildURL(args []string, token string) string {
 
 	url := fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token)
 
-	return url
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Printf("problem setting url', %v", err)
+		os.Exit(2)
+	}
+	return request
 }
 
-// func BuildURL(token string, location string) string {
+func Response(request *http.Request) (*http.Response, error) {
 
-// 	domain := "api.openweathermap.org"
+	client := &http.Client{}
 
-// 	BuildURL := fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token)
-
-// 	return BuildURL
-// }
-
-func CallURL(url string) (*http.Response, error) {
-
-	resp, err := http.Get(url)
+	resp, err := client.Do(request)
 
 	if err != nil {
 		log.Printf("an error has occured, %v", err)
