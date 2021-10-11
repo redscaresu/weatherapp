@@ -33,7 +33,7 @@ type Conditions struct {
 	TemperatureCelsius float64
 }
 
-func RunCli(args []string) (output string) {
+func RunCLI(args []string) (output string) {
 
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if len(token) == 0 {
@@ -70,7 +70,6 @@ func Request(args []string, token string) (*http.Request, error) {
 
 	if len(os.Args) == 1 {
 		fmt.Fprintf(os.Stderr, "please set a location e.g. london\n")
-		os.Exit(2)
 	}
 
 	location := strings.Join(args[1:], "%20")
@@ -80,7 +79,6 @@ func Request(args []string, token string) (*http.Request, error) {
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Printf("problem setting url', %v", err)
-		os.Exit(2)
 	}
 	return request, err
 }
@@ -90,11 +88,6 @@ func Response(request *http.Request) (*http.Response, error) {
 	client := &http.Client{}
 
 	resp, err := client.Do(request)
-
-	if err != nil {
-		log.Printf("an error has occured, %v", err)
-		os.Exit(2)
-	}
 
 	return resp, err
 }
@@ -114,20 +107,17 @@ func ParseResponse(resp *http.Response) (Conditions, error) {
 
 		if cu.Message == "city not found" {
 			fmt.Printf("The city cannot be found, the error code is %v \n", resp.StatusCode)
-			os.Exit(2)
 		}
 	}
 
 	read_all, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("an error has occured, %v", err)
-		os.Exit(2)
 	}
 
 	err = json.Unmarshal(read_all, &a)
 	if err != nil {
 		log.Printf("an error has occured, %v", err)
-		os.Exit(2)
 	}
 
 	Celsius := a.Main.Temp - 273.15
@@ -142,7 +132,6 @@ func ParseResponse(resp *http.Response) (Conditions, error) {
 	json.NewEncoder(reqBodyBytes).Encode(c)
 	if err != nil {
 		log.Printf("an error has occured, %v", err)
-		os.Exit(2)
 	}
 
 	return c, nil
