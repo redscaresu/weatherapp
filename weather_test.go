@@ -1,9 +1,10 @@
 package weather_test
 
 import (
-	"io"
+	"bufio"
+	"fmt"
+	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
 	"weather"
@@ -28,20 +29,17 @@ func TestConstructUrl(t *testing.T) {
 
 func TestParseResponseWeather(t *testing.T) {
 
-	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		file, err := os.Open("testdata/weather.json")
-		if err != nil {
-			t.Fatal(err)
-		}
-		io.Copy(w, file)
-	}))
-	defer ts.Close()
-
-	client := ts.Client()
-	res, err := client.Get(ts.URL)
+	file, err := os.Open("testdata/weather.json")
 	if err != nil {
 		t.Fatal(err)
 	}
+	r := ioutil.NopCloser(bufio.NewReader(file))
+
+	res, err := &http.Response{
+		Status:     fmt.Sprint(http.StatusOK),
+		StatusCode: http.StatusOK,
+		Body:       r,
+	}, nil
 
 	want := weather.Conditions{
 		OneWord:            "Clouds",
