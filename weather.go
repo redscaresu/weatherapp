@@ -41,12 +41,18 @@ func RunCli(args []string) (output string) {
 		os.Exit(2)
 	}
 
-	request := Request(args, token)
+	request, err := Request(args, token)
+	if err != nil {
+		log.Printf("an error has occured, %v", err)
+		os.Exit(2)
+	}
+
 	response, err := Response(request)
 	if err != nil {
 		log.Printf("an error has occured, %v", err)
 		os.Exit(2)
 	}
+
 	conditions, err := ParseResponse(response)
 	if err != nil {
 		log.Printf("problem parsing API response', %v", err)
@@ -58,7 +64,7 @@ func RunCli(args []string) (output string) {
 	return output
 }
 
-func Request(args []string, token string) *http.Request {
+func Request(args []string, token string) (*http.Request, error) {
 
 	domain := "api.openweathermap.org"
 
@@ -76,7 +82,7 @@ func Request(args []string, token string) *http.Request {
 		log.Printf("problem setting url', %v", err)
 		os.Exit(2)
 	}
-	return request
+	return request, err
 }
 
 func Response(request *http.Request) (*http.Response, error) {

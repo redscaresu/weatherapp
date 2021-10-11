@@ -1,6 +1,10 @@
 package weather_test
 
 import (
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"os"
 	"testing"
 	"weather"
 )
@@ -8,7 +12,11 @@ import (
 func TestConstructUrl(t *testing.T) {
 
 	token := "foo"
-	response := weather.Request([]string{"PATH", "rio", "de", "janeiro"}, token)
+	response, err := weather.Request([]string{"PATH", "rio", "de", "janeiro"}, token)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	got := response.URL.String()
 	want := "https://api.openweathermap.org/data/2.5/weather?q=rio%20de%20janeiro&appid=foo"
 
@@ -18,36 +26,36 @@ func TestConstructUrl(t *testing.T) {
 
 }
 
-// func TestParseResponseWeather(t *testing.T) {
+func TestParseResponseWeather(t *testing.T) {
 
-// 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		file, err := os.Open("testdata/weather.json")
-// 		if err != nil {
-// 			t.Fatal(err)
-// 		}
-// 		io.Copy(w, file)
-// 	}))
-// 	defer ts.Close()
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		file, err := os.Open("testdata/weather.json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		io.Copy(w, file)
+	}))
+	defer ts.Close()
 
-// 	client := ts.Client()
-// 	res, err := client.Get(ts.URL)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	client := ts.Client()
+	res, err := client.Get(ts.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	want := weather.Conditions{
-// 		OneWord:            "Clouds",
-// 		TemperatureCelsius: 23.0,
-// 		City:               "Birmingham",
-// 	}
+	want := weather.Conditions{
+		OneWord:            "Clouds",
+		TemperatureCelsius: 23.0,
+		City:               "Birmingham",
+	}
 
-// 	got, err := weather.ParseResponse(res)
+	got, err := weather.ParseResponse(res)
 
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	if want != got {
-// 		t.Fatal("want not equal to got")
-// 	}
-// }
+	if want != got {
+		t.Fatal("want not equal to got")
+	}
+}
