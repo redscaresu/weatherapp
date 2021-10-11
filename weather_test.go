@@ -12,10 +12,8 @@ import (
 func TestConstructUrl(t *testing.T) {
 
 	token := "foo"
-	location := weather.LocationFromArgs([]string{"PATH", "rio", "de", "janeiro"})
+	got := weather.BuildURL([]string{"PATH", "rio", "de", "janeiro"}, token)
 	want := "https://api.openweathermap.org/data/2.5/weather?q=rio%20de%20janeiro&appid=foo"
-
-	got := weather.BuildURL(token, location)
 
 	if want != got {
 		t.Fatalf("want: %q got: %q", want, got)

@@ -8,6 +8,6 @@ import (
 
 func main() {
 
-	resp := weather.CliOutput(os.Args)
+	resp := weather.RunCli(os.Args)
 	fmt.Print(resp)
 }

@@ -33,7 +33,7 @@ type Conditions struct {
 	TemperatureCelsius float64
 }
 
-func CliOutput(args []string) (output string) {
+func RunCli(args []string) (output string) {
 
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if len(token) == 0 {
@@ -41,8 +41,7 @@ func CliOutput(args []string) (output string) {
 		os.Exit(2)
 	}
 
-	location := LocationFromArgs(args)
-	url := BuildURL(token, location)
+	url := BuildURL(args, token)
 	callURL, err := CallURL(url)
 	if err != nil {
 		log.Printf("an error has occured, %v", err)
@@ -59,7 +58,9 @@ func CliOutput(args []string) (output string) {
 	return output
 }
 
-func LocationFromArgs(args []string) string {
+func BuildURL(args []string, token string) string {
+
+	domain := "api.openweathermap.org"
 
 	if len(os.Args) == 1 {
 		fmt.Fprintf(os.Stderr, "please set a location e.g. london\n")
@@ -68,17 +69,19 @@ func LocationFromArgs(args []string) string {
 
 	location := strings.Join(args[1:], "%20")
 
-	return location
+	url := fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token)
+
+	return url
 }
 
-func BuildURL(token string, location string) string {
+// func BuildURL(token string, location string) string {
 
-	domain := "api.openweathermap.org"
+// 	domain := "api.openweathermap.org"
 
-	BuildURL := fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token)
+// 	BuildURL := fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token)
 
-	return BuildURL
-}
+// 	return BuildURL
+// }
 
 func CallURL(url string) (*http.Response, error) {
 
