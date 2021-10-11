@@ -59,7 +59,7 @@ func RunCLI(args []string) (output string) {
 		os.Exit(2)
 	}
 
-	output = fmt.Sprintf("city: %s\nweather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
+	output = fmt.Sprintf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
 
 	return output
 }
