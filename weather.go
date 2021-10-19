@@ -36,7 +36,7 @@ type Conditions struct {
 func RunCLI(args []string) {
 
 	token := os.Getenv("WEATHERAPP_TOKEN")
-	if len(token) == 0 {
+	if token == "" {
 		fmt.Fprintf(os.Stderr, "please set env variable, WEATHERAPP_TOKEN \n")
 		os.Exit(2)
 	}
