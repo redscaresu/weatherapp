@@ -33,7 +33,7 @@ type Conditions struct {
 	TemperatureCelsius float64
 }
 
-func RunCLI(args []string) (output string) {
+func RunCLI(args []string) {
 
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if len(token) == 0 {
@@ -59,9 +59,8 @@ func RunCLI(args []string) (output string) {
 		os.Exit(2)
 	}
 
-	output = fmt.Sprintf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
+	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
 
-	return output
 }
 
 func Request(args []string, token string) (*http.Request, error) {
@@ -79,6 +78,8 @@ func Request(args []string, token string) (*http.Request, error) {
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Printf("problem setting url', %v", err)
+		return request, err
+
 	}
 	return request, err
 }
