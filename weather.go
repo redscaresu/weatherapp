@@ -1,11 +1,9 @@
 package weather
 
 import (
-	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"math"
 	"net/http"
 	"os"
@@ -20,11 +18,6 @@ type apiResponse struct {
 	Main struct {
 		Temp float64
 	}
-}
-
-type apiErrorResponse struct {
-	Cod     string
-	Message string
 }
 
 type Conditions struct {
@@ -43,19 +36,19 @@ func RunCLI(args []string) {
 
 	request, err := Request(args, token)
 	if err != nil {
-		log.Printf("an error has occured, %v", err)
+		fmt.Fprintf(os.Stderr, "problem setting url', %v", err)
 		os.Exit(2)
 	}
 
 	response, err := Response(request)
 	if err != nil {
-		log.Printf("an error has occured, %v", err)
+		fmt.Fprintf(os.Stderr, "an error has occured, %v", err)
 		os.Exit(2)
 	}
 
 	conditions, err := ParseResponse(response)
 	if err != nil {
-		log.Printf("problem parsing API response', %v", err)
+		fmt.Fprintf(os.Stderr, "problem parsing API response', %v", err)
 		os.Exit(2)
 	}
 
@@ -77,11 +70,9 @@ func Request(args []string, token string) (*http.Request, error) {
 
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Printf("problem setting url', %v", err)
-		return request, err
-
+		return nil, err
 	}
-	return request, err
+	return request, nil
 }
 
 func Response(request *http.Request) (*http.Response, error) {
@@ -89,8 +80,11 @@ func Response(request *http.Request) (*http.Response, error) {
 	client := &http.Client{}
 
 	resp, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
 
-	return resp, err
+	return resp, nil
 }
 
 func ParseResponse(resp *http.Response) (Conditions, error) {
@@ -98,27 +92,13 @@ func ParseResponse(resp *http.Response) (Conditions, error) {
 	var a apiResponse
 	var c Conditions
 
-	var cu apiErrorResponse
-
 	if resp.StatusCode == http.StatusNotFound {
-		err := json.NewDecoder(resp.Body).Decode(&cu)
-		if err != nil {
-			log.Printf("an error has occured, %v", err)
-		}
-
-		if cu.Message == "city not found" {
-			fmt.Printf("The city cannot be found, the error code is %v \n", resp.StatusCode)
-		}
+		return Conditions{}, errors.New("location not found")
 	}
 
-	read_all, err := ioutil.ReadAll(resp.Body)
+	err := json.NewDecoder(resp.Body).Decode(&a)
 	if err != nil {
-		log.Printf("an error has occured, %v", err)
-	}
-
-	err = json.Unmarshal(read_all, &a)
-	if err != nil {
-		log.Printf("an error has occured, %v", err)
+		return Conditions{}, err
 	}
 
 	Celsius := a.Main.Temp - 273.15
@@ -127,13 +107,6 @@ func ParseResponse(resp *http.Response) (Conditions, error) {
 	c.TemperatureCelsius = math.Round(Celsius)
 	c.OneWord = mainWeather
 	c.City = a.Name
-
-	reqBodyBytes := new(bytes.Buffer)
-
-	json.NewEncoder(reqBodyBytes).Encode(c)
-	if err != nil {
-		log.Printf("an error has occured, %v", err)
-	}
 
 	return c, nil
 }
