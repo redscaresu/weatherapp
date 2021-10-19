@@ -1,10 +1,6 @@
 package weather_test
 
 import (
-	"bufio"
-	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"testing"
 	"weather"
@@ -13,12 +9,11 @@ import (
 func TestConstructUrl(t *testing.T) {
 
 	token := "foo"
-	response, err := weather.Request([]string{"PATH", "rio", "de", "janeiro"}, token)
+	got, err := weather.Request([]string{"PATH", "rio", "de", "janeiro"}, token)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	got := response.URL.String()
 	want := "https://api.openweathermap.org/data/2.5/weather?q=rio%20de%20janeiro&appid=foo"
 
 	if want != got {
@@ -33,13 +28,7 @@ func TestParseResponseWeather(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r := ioutil.NopCloser(bufio.NewReader(file))
-
-	res, err := &http.Response{
-		Status:     fmt.Sprint(http.StatusOK),
-		StatusCode: http.StatusOK,
-		Body:       r,
-	}, nil
+	defer file.Close()
 
 	want := weather.Conditions{
 		OneWord:            "Clouds",
@@ -47,7 +36,7 @@ func TestParseResponseWeather(t *testing.T) {
 		City:               "Birmingham",
 	}
 
-	got, err := weather.ParseResponse(res)
+	got, err := weather.ParseResponse(file)
 
 	if err != nil {
 		t.Fatal(err)

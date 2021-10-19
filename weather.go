@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"net/http"
 	"os"
@@ -56,7 +57,7 @@ func RunCLI(args []string) {
 
 }
 
-func Request(args []string, token string) (*http.Request, error) {
+func Request(args []string, token string) (string, error) {
 
 	domain := "api.openweathermap.org"
 
@@ -68,35 +69,29 @@ func Request(args []string, token string) (*http.Request, error) {
 
 	url := fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token)
 
-	request, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	return request, nil
+	return url, nil
 }
 
-func Response(request *http.Request) (*http.Response, error) {
+func Response(url string) (io.Reader, error) {
 
-	client := &http.Client{}
-
-	resp, err := client.Do(request)
+	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp, nil
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, errors.New("location not found")
+	}
+
+	return resp.Body, nil
 }
 
-func ParseResponse(resp *http.Response) (Conditions, error) {
+func ParseResponse(r io.Reader) (Conditions, error) {
 
 	var a apiResponse
 	var c Conditions
 
-	if resp.StatusCode == http.StatusNotFound {
-		return Conditions{}, errors.New("location not found")
-	}
-
-	err := json.NewDecoder(resp.Body).Decode(&a)
+	err := json.NewDecoder(r).Decode(&a)
 	if err != nil {
 		return Conditions{}, err
 	}
