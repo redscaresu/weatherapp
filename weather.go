@@ -79,6 +79,10 @@ func Response(url string) (io.Reader, error) {
 		return nil, err
 	}
 
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("http not OK, http code %v", resp.StatusCode)
+	}
+
 	if resp.StatusCode == http.StatusNotFound {
 		return nil, errors.New("location not found")
 	}
