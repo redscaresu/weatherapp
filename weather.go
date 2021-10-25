@@ -2,7 +2,6 @@ package weather
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -43,19 +42,19 @@ func GetConditions(args []string) Conditions {
 
 	request, err := Request(args, token)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "problem setting url', %v", err)
+		fmt.Fprintf(os.Stderr, "problem setting url', %v\n", err)
 		os.Exit(2)
 	}
 
 	response, err := Response(request)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "an error has occured, %v", err)
+		fmt.Fprintf(os.Stderr, "an error has occured, %v\n", err)
 		os.Exit(2)
 	}
 
 	conditions, err := ParseResponse(response)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "problem parsing API response', %v", err)
+		fmt.Fprintf(os.Stderr, "problem parsing API response\n', %v", err)
 		os.Exit(2)
 	}
 
@@ -85,11 +84,7 @@ func Response(url string) (io.Reader, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("http not OK, http code %v", resp.StatusCode)
-	}
-
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, errors.New("location not found")
+		return nil, fmt.Errorf("http error code %v", resp.StatusCode)
 	}
 
 	return resp.Body, nil
