@@ -29,6 +29,12 @@ type Conditions struct {
 
 func RunCLI(args []string) {
 
+	conditions := GetConditions(args)
+	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
+}
+
+func GetConditions(args []string) Conditions {
+
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if token == "" {
 		fmt.Fprintf(os.Stderr, "please set env variable, WEATHERAPP_TOKEN \n")
@@ -53,8 +59,7 @@ func RunCLI(args []string) {
 		os.Exit(2)
 	}
 
-	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
-
+	return conditions
 }
 
 func Request(args []string, token string) (string, error) {
