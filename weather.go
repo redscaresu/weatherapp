@@ -2,7 +2,6 @@ package weather
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -29,6 +28,12 @@ type Conditions struct {
 
 func RunCLI(args []string) {
 
+	conditions := GetConditions(args)
+	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
+}
+
+func GetConditions(args []string) Conditions {
+
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if token == "" {
 		fmt.Fprintf(os.Stderr, "please set env variable, WEATHERAPP_TOKEN \n")
@@ -37,24 +42,23 @@ func RunCLI(args []string) {
 
 	request, err := Request(args, token)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "problem setting url', %v", err)
+		fmt.Fprintf(os.Stderr, "problem setting url', %v\n", err)
 		os.Exit(2)
 	}
 
 	response, err := Response(request)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "an error has occured, %v", err)
+		fmt.Fprintf(os.Stderr, "an error has occured, %v\n", err)
 		os.Exit(2)
 	}
 
 	conditions, err := ParseResponse(response)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "problem parsing API response', %v", err)
+		fmt.Fprintf(os.Stderr, "problem parsing API response\n', %v", err)
 		os.Exit(2)
 	}
 
-	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
-
+	return conditions
 }
 
 func Request(args []string, token string) (string, error) {
@@ -80,11 +84,7 @@ func Response(url string) (io.Reader, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("http not OK, http code %v", resp.StatusCode)
-	}
-
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, errors.New("location not found")
+		return nil, fmt.Errorf("http error code %v", resp.StatusCode)
 	}
 
 	return resp.Body, nil
