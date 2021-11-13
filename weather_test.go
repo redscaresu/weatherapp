@@ -11,7 +11,11 @@ import (
 func TestConstructUrl(t *testing.T) {
 
 	token := "foo"
-	got, err := weather.Request([]string{"PATH", "rio", "de", "janeiro"}, token)
+	location, err := weather.ParseArgs([]string{"rio de janeiro"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := weather.Request(location, token)
 	if err != nil {
 		t.Fatal(err)
 	}

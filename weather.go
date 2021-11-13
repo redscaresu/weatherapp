@@ -39,7 +39,13 @@ func RunCLI() {
 		os.Exit(2)
 	}
 
-	request, err := Request(os.Args, token)
+	location, err := ParseArgs(os.Args)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(2)
+	}
+
+	request, err := Request(location, token)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Usage: %s LOCATION\n", os.Args[0])
 		os.Exit(2)
@@ -62,11 +68,18 @@ func RunCLI() {
 	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, celcius)
 }
 
-func Request(args []string, token string) (string, error) {
-
-	domain := "api.openweathermap.org"
+func ParseArgs(args []string) (string, error) {
 
 	location := strings.Join(args[1:], "%20")
+	if len(location) == 0 {
+		return "", errors.New("the location is empty")
+	}
+	return location, nil
+}
+
+func Request(location string, token string) (string, error) {
+
+	domain := "api.openweathermap.org"
 
 	url := fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token)
 
@@ -107,7 +120,7 @@ func ParseResponse(r []byte) (Conditions, error) {
 	}
 
 	if len(a.Name) == 0 {
-		return Conditions{}, errors.New("empty apiResponse struct")
+		return Conditions{}, fmt.Errorf("empty apiResponse struct: %v", apiResponse{})
 	}
 
 	Celsius := a.Main.Temp - 273.15
