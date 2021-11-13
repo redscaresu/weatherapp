@@ -37,7 +37,7 @@ func RunCLI() {
 
 	request, err := Request(os.Args, token)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "problem setting url', %v", err)
+		fmt.Fprintf(os.Stderr, "Usage: %s LOCATION\n", os.Args[0])
 		os.Exit(2)
 	}
 
@@ -79,8 +79,8 @@ func Response(url string) (io.Reader, error) {
 		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("http not OK, http code %v", resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http not OK, http code %v ", resp.StatusCode)
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
