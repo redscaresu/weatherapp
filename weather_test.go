@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"testing"
 	"weather"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestConstructUrl(t *testing.T) {
