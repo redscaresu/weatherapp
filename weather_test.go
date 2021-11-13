@@ -1,7 +1,11 @@
 package weather_test
 
 import (
+	"io"
 	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"os"
 	"testing"
 	"weather"
 
@@ -30,7 +34,17 @@ func TestConstructUrl(t *testing.T) {
 
 func TestParseResponseWeather(t *testing.T) {
 
-	file, err := ioutil.ReadFile("testdata/weather.json")
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		file, err := os.Open("testdata/weather.json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		io.Copy(w, file)
+	}))
+	defer ts.Close()
+
+	client := ts.Client()
+	res, err := client.Get(ts.URL)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +55,12 @@ func TestParseResponseWeather(t *testing.T) {
 		City:               "Birmingham",
 	}
 
-	got, err := weather.ParseResponse(file)
+	bodyBytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := weather.ParseResponse(bodyBytes)
 
 	if err != nil {
 		t.Fatal(err)
