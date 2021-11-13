@@ -42,6 +42,6 @@ func TestParseResponseWeather(t *testing.T) {
 	}
 
 	if want != got {
-		t.Fatal("want not equal to got")
+		t.Fatal(cmp.Diff(want, got))
 	}
 }
