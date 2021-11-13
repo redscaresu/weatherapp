@@ -71,30 +71,35 @@ func Request(args []string, token string) (string, error) {
 	return url, nil
 }
 
-func Response(url string) (io.Reader, error) {
+func Response(url string) ([]byte, error) {
 
-	resp, err := http.Get(url)
+	r, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("http not OK, http code %v ", resp.StatusCode)
+	if r.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http not OK, http code %v ", r.StatusCode)
 	}
 
-	if resp.StatusCode == http.StatusNotFound {
+	if r.StatusCode == http.StatusNotFound {
 		return nil, fmt.Errorf("location not found: %q", os.Args[0])
 	}
 
-	return resp.Body, nil
+	resp, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
-func ParseResponse(r io.Reader) (Conditions, error) {
+func ParseResponse(r []byte) (Conditions, error) {
 
 	var a apiResponse
 	var c Conditions
 
-	err := json.NewDecoder(r).Decode(&a)
+	err := json.Unmarshal(r, &a)
 	if err != nil {
 		return Conditions{}, err
 	}

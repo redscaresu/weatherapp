@@ -1,7 +1,7 @@
 package weather_test
 
 import (
-	"os"
+	"io/ioutil"
 	"testing"
 	"weather"
 )
@@ -24,11 +24,10 @@ func TestConstructUrl(t *testing.T) {
 
 func TestParseResponseWeather(t *testing.T) {
 
-	file, err := os.Open("testdata/weather.json")
+	file, err := ioutil.ReadFile("testdata/weather.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer file.Close()
 
 	want := weather.Conditions{
 		OneWord:            "Clouds",
