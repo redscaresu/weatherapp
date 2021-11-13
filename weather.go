@@ -109,6 +109,7 @@ func ParseResponse(r []byte) (Conditions, error) {
 		return Conditions{}, errors.New("empty struct")
 	}
 
+	fmt.Println(a.Main.Temp)
 	Celsius := a.Main.Temp - 273.15
 	mainWeather := a.Weather[0].Main
 

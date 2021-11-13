@@ -33,7 +33,7 @@ func TestParseResponseWeather(t *testing.T) {
 
 	want := weather.Conditions{
 		OneWord:            "Clouds",
-		TemperatureCelsius: 23.0,
+		TemperatureCelsius: 11.590000000000032,
 		City:               "Birmingham",
 	}
 
