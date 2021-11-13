@@ -2,7 +2,6 @@ package weather
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -84,7 +83,7 @@ func Response(url string) (io.Reader, error) {
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		return nil, errors.New("location not found")
+		return nil, fmt.Errorf("location not found: %q", os.Args[0])
 	}
 
 	return resp.Body, nil
