@@ -43,7 +43,7 @@ func RunCLI() {
 
 	response, err := Response(request)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "an error has occured, %v", err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(2)
 	}
 
