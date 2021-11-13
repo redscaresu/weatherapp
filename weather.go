@@ -34,6 +34,11 @@ func RunCLI() {
 		os.Exit(2)
 	}
 
+	if len(os.Args) == 1 {
+		fmt.Fprintf(os.Stderr, "please set a location e.g. london\n")
+		os.Exit(2)
+	}
+
 	request, err := Request(os.Args, token)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Usage: %s LOCATION\n", os.Args[0])
@@ -60,10 +65,6 @@ func RunCLI() {
 func Request(args []string, token string) (string, error) {
 
 	domain := "api.openweathermap.org"
-
-	if len(os.Args) == 1 {
-		fmt.Fprintf(os.Stderr, "please set a location e.g. london\n")
-	}
 
 	location := strings.Join(args[1:], "%20")
 
