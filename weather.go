@@ -107,7 +107,7 @@ func ParseResponse(r []byte) (Conditions, error) {
 	}
 
 	if len(a.Name) == 0 {
-		return Conditions{}, errors.New("empty struct")
+		return Conditions{}, errors.New("empty apiResponse struct")
 	}
 
 	Celsius := a.Main.Temp - 273.15
