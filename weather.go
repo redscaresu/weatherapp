@@ -2,6 +2,7 @@ package weather
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -102,6 +103,10 @@ func ParseResponse(r []byte) (Conditions, error) {
 	err := json.Unmarshal(r, &a)
 	if err != nil {
 		return Conditions{}, err
+	}
+
+	if len(a.Name) == 0 {
+		return Conditions{}, errors.New("empty struct")
 	}
 
 	Celsius := a.Main.Temp - 273.15
