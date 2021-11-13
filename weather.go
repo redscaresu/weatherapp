@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"os"
 	"strings"
@@ -52,8 +51,9 @@ func RunCLI() {
 		os.Exit(2)
 	}
 
-	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
+	celcius := fmt.Sprintf("%.1f", conditions.TemperatureCelsius)
 
+	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, celcius)
 }
 
 func Request(args []string, token string) (string, error) {
@@ -107,7 +107,7 @@ func ParseResponse(r []byte) (Conditions, error) {
 	Celsius := a.Main.Temp - 273.15
 	mainWeather := a.Weather[0].Main
 
-	c.TemperatureCelsius = math.Round(Celsius)
+	c.TemperatureCelsius = Celsius
 	c.OneWord = mainWeather
 	c.City = a.Name
 
