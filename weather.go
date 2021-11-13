@@ -27,7 +27,7 @@ type Conditions struct {
 	TemperatureCelsius float64
 }
 
-func RunCLI(args []string) {
+func RunCLI() {
 
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if token == "" {
@@ -35,7 +35,7 @@ func RunCLI(args []string) {
 		os.Exit(2)
 	}
 
-	request, err := Request(args, token)
+	request, err := Request(os.Args, token)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "problem setting url', %v", err)
 		os.Exit(2)
