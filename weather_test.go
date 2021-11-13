@@ -11,7 +11,7 @@ import (
 func TestConstructUrl(t *testing.T) {
 
 	token := "foo"
-	location, err := weather.ParseArgs([]string{"rio de janeiro"})
+	location, err := weather.ParseArgs([]string{"PATH", "rio", "de", "janeiro"})
 	if err != nil {
 		t.Fatal(err)
 	}
