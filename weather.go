@@ -2,7 +2,6 @@ package weather
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -27,6 +26,12 @@ type Conditions struct {
 }
 
 func RunCLI() {
+
+	conditions := GetConditions(args)
+	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
+}
+
+func GetConditions(args []string) Conditions {
 
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if token == "" {
@@ -59,7 +64,7 @@ func RunCLI() {
 
 	conditions, err := ParseResponse(response)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "problem parsing API response', %v", err)
+		fmt.Fprintf(os.Stderr, "problem parsing API response\n', %v", err)
 		os.Exit(2)
 	}
 
