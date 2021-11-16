@@ -31,41 +31,39 @@ func RunCLI() {
 	token := os.Getenv("WEATHERAPP_TOKEN")
 	if token == "" {
 		fmt.Fprintf(os.Stderr, "please set env variable, WEATHERAPP_TOKEN \n")
-		os.Exit(2)
+		os.Exit(1)
 	}
 
 	if len(os.Args) == 1 {
-		fmt.Fprintf(os.Stderr, "please set a location e.g. london\n")
-		os.Exit(2)
+		fmt.Fprintf(os.Stderr, "Usage: %s LOCATION\n", os.Args[0])
+		os.Exit(1)
 	}
 
 	location, err := ParseArgs(os.Args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(2)
+		os.Exit(1)
 	}
 
 	request, err := Request(location, token)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Usage: %s LOCATION\n", os.Args[0])
-		os.Exit(2)
+		os.Exit(1)
 	}
 
 	response, err := Response(request)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(2)
+		os.Exit(1)
 	}
 
 	conditions, err := ParseResponse(response)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "problem parsing API response', %v", err)
-		os.Exit(2)
+		os.Exit(1)
 	}
 
-	celcius := fmt.Sprintf("%.1f", conditions.TemperatureCelsius)
-
-	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, celcius)
+	fmt.Printf("City: %s\nWeather: %s\nCelsius: %.1f\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
 }
 
 func ParseArgs(args []string) (string, error) {
@@ -119,7 +117,7 @@ func ParseResponse(r []byte) (Conditions, error) {
 		return Conditions{}, err
 	}
 
-	if len(a.Name) == 0 {
+	if a.Name == "" {
 		return Conditions{}, fmt.Errorf("empty apiResponse struct: %v", apiResponse{})
 	}
 

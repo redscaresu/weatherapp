@@ -29,7 +29,6 @@ func TestConstructUrl(t *testing.T) {
 	if want != got {
 		t.Fatalf("want: %q got: %q", want, got)
 	}
-
 }
 
 func TestParseResponseWeather(t *testing.T) {
@@ -69,4 +68,15 @@ func TestParseResponseWeather(t *testing.T) {
 	if want != got {
 		t.Fatal(cmp.Diff(want, got))
 	}
+}
+
+func TestCreateString(t *testing.T) {
+
+	input := weather.Conditions{
+		OneWord:            "Clouds",
+		TemperatureCelsius: 26.01,
+		City:               "Birmingham",
+	}
+
+	want := "Clouds"
 }
