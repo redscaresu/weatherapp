@@ -78,5 +78,5 @@ func TestCreateString(t *testing.T) {
 		City:               "Birmingham",
 	}
 
-	want := "Clouds"
+	want := ""
 }
