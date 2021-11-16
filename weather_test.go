@@ -1,15 +1,25 @@
 package weather_test
 
 import (
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 	"weather"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestConstructUrl(t *testing.T) {
 
 	token := "foo"
-	got, err := weather.Request([]string{"PATH", "rio", "de", "janeiro"}, token)
+	location, err := weather.ParseArgs([]string{"PATH", "rio", "de", "janeiro"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := weather.Request(location, token)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -24,25 +34,39 @@ func TestConstructUrl(t *testing.T) {
 
 func TestParseResponseWeather(t *testing.T) {
 
-	file, err := os.Open("testdata/weather.json")
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		file, err := os.Open("testdata/weather.json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		io.Copy(w, file)
+	}))
+	defer ts.Close()
+
+	client := ts.Client()
+	res, err := client.Get(ts.URL)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer file.Close()
 
 	want := weather.Conditions{
 		OneWord:            "Clouds",
-		TemperatureCelsius: 23.0,
+		TemperatureCelsius: 11.590000000000032,
 		City:               "Birmingham",
 	}
 
-	got, err := weather.ParseResponse(file)
+	bodyBytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := weather.ParseResponse(bodyBytes)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if want != got {
-		t.Fatal("want not equal to got")
+		t.Fatal(cmp.Diff(want, got))
 	}
 }

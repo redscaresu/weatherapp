@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"os"
 	"strings"
@@ -26,7 +25,7 @@ type Conditions struct {
 	TemperatureCelsius float64
 }
 
-func RunCLI(args []string) {
+func RunCLI() {
 
 	conditions := GetConditions(args)
 	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, conditions.TemperatureCelsius)
@@ -40,15 +39,26 @@ func GetConditions(args []string) Conditions {
 		os.Exit(2)
 	}
 
-	request, err := Request(args, token)
+	if len(os.Args) == 1 {
+		fmt.Fprintf(os.Stderr, "please set a location e.g. london\n")
+		os.Exit(2)
+	}
+
+	location, err := ParseArgs(os.Args)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "problem setting url', %v\n", err)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(2)
+	}
+
+	request, err := Request(location, token)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Usage: %s LOCATION\n", os.Args[0])
 		os.Exit(2)
 	}
 
 	response, err := Response(request)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "an error has occured, %v\n", err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(2)
 	}
 
@@ -58,52 +68,70 @@ func GetConditions(args []string) Conditions {
 		os.Exit(2)
 	}
 
-	return conditions
+	celcius := fmt.Sprintf("%.1f", conditions.TemperatureCelsius)
+
+	fmt.Printf("City: %s\nWeather: %s\nCelsius: %v\n", conditions.City, conditions.OneWord, celcius)
 }
 
-func Request(args []string, token string) (string, error) {
-
-	domain := "api.openweathermap.org"
-
-	if len(os.Args) == 1 {
-		fmt.Fprintf(os.Stderr, "please set a location e.g. london\n")
-	}
+func ParseArgs(args []string) (string, error) {
 
 	location := strings.Join(args[1:], "%20")
+	if len(location) == 0 {
+		return "", errors.New("the location is empty")
+	}
+	return location, nil
+}
+
+func Request(location string, token string) (string, error) {
+
+	domain := "api.openweathermap.org"
 
 	url := fmt.Sprintf("https://%s/data/2.5/weather?q=%s&appid=%s", domain, location, token)
 
 	return url, nil
 }
 
-func Response(url string) (io.Reader, error) {
+func Response(url string) ([]byte, error) {
 
-	resp, err := http.Get(url)
+	r, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("http error code %v", resp.StatusCode)
+	if r.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http not OK, http code %v ", r.StatusCode)
 	}
 
-	return resp.Body, nil
+	if r.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("location not found: %q", os.Args[0])
+	}
+
+	resp, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
-func ParseResponse(r io.Reader) (Conditions, error) {
+func ParseResponse(r []byte) (Conditions, error) {
 
 	var a apiResponse
 	var c Conditions
 
-	err := json.NewDecoder(r).Decode(&a)
+	err := json.Unmarshal(r, &a)
 	if err != nil {
 		return Conditions{}, err
+	}
+
+	if len(a.Name) == 0 {
+		return Conditions{}, fmt.Errorf("empty apiResponse struct: %v", apiResponse{})
 	}
 
 	Celsius := a.Main.Temp - 273.15
 	mainWeather := a.Weather[0].Main
 
-	c.TemperatureCelsius = math.Round(Celsius)
+	c.TemperatureCelsius = Celsius
 	c.OneWord = mainWeather
 	c.City = a.Name
 
