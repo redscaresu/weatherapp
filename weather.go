@@ -2,6 +2,7 @@ package weather
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
