@@ -22,10 +22,16 @@ type Conditions struct {
 	City               string
 	OneWord            string
 	TemperatureCelsius float64
+	TempScale          struct {
+		Farenheit float64
+		Celsius   float64
+		Kelvin    float64
+		Rankine   float64
+	}
 }
 
 func (c Conditions) String() string {
-	return fmt.Sprintf("%s %.1fºC", c.OneWord, c.TemperatureCelsius)
+	return fmt.Sprintf("%s %.1fºC", c.OneWord, c.TempScale.Celsius)
 }
 
 func RunCLI() {
@@ -75,10 +81,13 @@ func ParseResponse(r []byte) (Conditions, error) {
 		return Conditions{}, fmt.Errorf("empty apiResponse struct: %v", apiResponse{})
 	}
 
-	Celsius := a.Main.Temp - 273.15
 	mainWeather := a.Weather[0].Main
 
-	c.TemperatureCelsius = Celsius
+	c.TempScale.Farenheit = a.Main.Temp
+	c.TempScale.Celsius = a.Main.Temp - 273.15
+	c.TempScale.Kelvin = (a.Main.Temp-32)*5/9 + 273.15
+	c.TempScale.Rankine = a.Main.Temp + 459.67
+
 	c.OneWord = mainWeather
 	c.City = a.Name
 
