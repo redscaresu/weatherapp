@@ -3,6 +3,7 @@ package weather
 import (
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -19,10 +20,9 @@ type apiResponse struct {
 }
 
 type Conditions struct {
-	City               string
-	OneWord            string
-	TemperatureCelsius float64
-	TempScale          struct {
+	City      string
+	OneWord   string
+	TempScale struct {
 		Farenheit float64
 		Celsius   float64
 		Kelvin    float64
@@ -30,7 +30,19 @@ type Conditions struct {
 	}
 }
 
-func (c Conditions) String() string {
+func Farenheit(c Conditions) string {
+	return fmt.Sprintf("%s %.1fºF", c.OneWord, c.TempScale.Farenheit)
+}
+
+func Kelvin(c Conditions) string {
+	return fmt.Sprintf("%s %.1fºK", c.OneWord, c.TempScale.Kelvin)
+}
+
+func Rankine(c Conditions) string {
+	return fmt.Sprintf("%s %.1fºR", c.OneWord, c.TempScale.Rankine)
+}
+
+func Celius(c Conditions) string {
 	return fmt.Sprintf("%s %.1fºC", c.OneWord, c.TempScale.Celsius)
 }
 
@@ -46,7 +58,11 @@ func RunCLI() {
 		os.Exit(1)
 	}
 
-	location, err := ParseArgs(os.Args[1:])
+	tempType := flag.String("temp", "f", "please choose either f,k,r or c")
+
+	flag.Parse()
+
+	location, err := ParseArgs(os.Args[2:])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -57,7 +73,17 @@ func RunCLI() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	fmt.Println(conditions)
+
+	switch *tempType {
+	case "f":
+		fmt.Println(Farenheit(conditions))
+	case "c":
+		fmt.Println(Farenheit(conditions))
+	case "k":
+		fmt.Println(Kelvin(conditions))
+	case "r":
+		fmt.Println(Rankine(conditions))
+	}
 }
 
 func ParseArgs(args []string) (string, error) {
